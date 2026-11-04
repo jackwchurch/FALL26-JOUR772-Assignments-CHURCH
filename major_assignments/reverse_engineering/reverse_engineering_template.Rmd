@@ -16,24 +16,34 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction 
+## Introduction
 
-In this notebook, we are reverse engineering the story, [STORY NAME](STORY URL)
+In this notebook, we are reverse engineering the story, [STORY NAME](STORY%20URL)
 
 ## Load libraries
 
 Loading required libraries for this analysis.
 
 ```{r echo=FALSE, message=FALSE}
-
+options(scipen=999)
+library(tidyverse)
+library(lubridate)
+library(refinr)
+library(janitor)
+library(stringr)
+library(dplyr)
+library(readxl)
+library(ggplot2)
 ```
 
 ## Load and Cleaning Data
 
-In this section, describe the source of the data, write a basic data dictionary for data you are working with, and discuss any caveats or issues you discovered working with this data. 
+In this section, describe the source of the data, write a basic data dictionary for data you are working with, and discuss any caveats or issues you discovered working with this data.
 
 ```{r}
 # Load required data
+nc_finance_data = read_excel("data/nc_finance_data.xlsx") |>
+  rename(name_clean = "name-clean")
 
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
 
@@ -43,15 +53,22 @@ In this section, describe the source of the data, write a basic data dictionary 
 ```
 
 ## Sentences to Engineer
+
 In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 1
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+- **Sentence text**: The co-chief executives at a Georgia firm that brokers tax credits put \$41,000 into the campaign accounts of North Carolina General Assembly members during the last regular legislative session.
+- **Analysis summary**: By filtering for Strobel and Delmer, the two relevant executives, and filtering for donations to candidates, we confirmed the \$41,000 number present in the article. The total donation was roughly equal between the two men.
 
 ```{r}
 # Put code to reverse engineer sentence here
+nc_finance_data |>
+  filter(name_clean == "GEORGE LEWIS STROBEL II" | name_clean == "ROBIN E DELMER") |>
+  filter(between(date,as.Date("2018-05-16"), as.Date("2026-06-29"))) |>
+  filter(source == "candidates") |>
+  group_by(name_clean) |>
+  summarise(sum(amount))
 
 # Display results of code below this codeblock
 
@@ -59,8 +76,8 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 2
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+- **Sentence text**: [Paste in sentence to engineer here]
+- **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
 
 ```{r}
 # Put code to reverse engineer sentence here
@@ -71,11 +88,22 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 3
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+- **Sentence text**: [Paste in sentence to engineer here]
+- **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
 
 ```{r}
 # Put code to reverse engineer sentence here
+nc_donations_by_date <- nc_finance_data |>
+  group_by(date) |>
+  summarise(
+    total=sum(amount)
+  )
+nc_donations_by_date
+
+
+nc_donations_by_date |>
+  ggplot() + 
+  geom_line(aes(x=date, y=total))
 
 # Display results of code below this codeblock
 
@@ -83,8 +111,8 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 4
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+- **Sentence text**: [Paste in sentence to engineer here]
+- **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
 
 ```{r}
 # Put code to reverse engineer sentence here
@@ -95,8 +123,8 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 5
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+- **Sentence text**: [Paste in sentence to engineer here]
+- **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
 
 ```{r}
 # Put code to reverse engineer sentence here
