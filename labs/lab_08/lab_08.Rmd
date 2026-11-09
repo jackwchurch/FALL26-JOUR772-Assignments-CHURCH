@@ -24,6 +24,8 @@ library(dplyr)
 library(readxl)
 library(ggplot2)
 library(tidycensus)
+install.packages("ggrepel")
+library(ggrepel)
 ```
 
 ## Load and modify data
@@ -57,16 +59,17 @@ Compare the results here to those from the pre_lab_08 bar chart - are there majo
 ```{r}
 pg_22_od_by_month <- prince_georges_2022_overdoses |>
   group_by(month) |> 
-  summarize(incident = n())
+  summarize(incident = n()) |>
+  mutate(pct = incident/1397*100)
 
 pg_22_od_by_month |>
   ggplot() +
-  geom_bar(aes(x=month, weight=incident)) +
+  geom_bar(aes(x=month, weight=pct)) +
   labs(
     title="Prince George's County Overdoses by Month, 2022",
-    x = "month",
-    y = "incidents",
-    caption = "source: Prince George's County EMS"
+    x = "Month",
+    y = "Percentage of Calls",
+    caption = "Source: Prince George's County EMS"
   )
     
 ```
@@ -135,11 +138,11 @@ v21 <- load_variables(2021, "acs5", cache=TRUE)
 md_income_zip <- get_acs(geography='zcta', variables=c(median_income='B07011_001'), year=2021) |>
 arrange(estimate)
 
-combined <- left_join(pg_22_od_by_zip,md_income_zip,by = join_by(zipcode == GEOID))
+combined <- inner_join(pg_22_od_by_zip,md_income_zip,by = join_by(zipcode == GEOID))
 
 ggplot(combined, aes(x=incident, y=estimate)) +
   geom_point() +
-  geom_text(aes(label = zipcode)) +
+  geom_text_repel(aes(label = zipcode)) +
   labs(
     title="911 Calls against Median Income, Prince George's County",
     x = "911 Calls",
