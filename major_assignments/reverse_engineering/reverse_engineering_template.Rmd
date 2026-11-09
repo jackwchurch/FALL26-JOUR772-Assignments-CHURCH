@@ -93,17 +93,22 @@ nc_finance_data |>
 
 ```{r}
 # Put code to reverse engineer sentence here
-nc_donations_by_date <- nc_finance_data |>
-  group_by(date) |>
+nc_donations_by_week <- nc_finance_data |>
+  mutate(week = week(date),
+         week_num = floor_date(date,"week")) |>
+  group_by(week_num) |>
   summarise(
     total=sum(amount)
   )
-nc_donations_by_date
 
 
-nc_donations_by_date |>
+nc_donations_by_week |>
   ggplot() + 
-  geom_line(aes(x=date, y=total))
+  geom_line(aes(x=week_num, y=total)) +
+  scale_x_date(date_breaks = "2 weeks", date_labels = "%b %d") +
+  theme(
+    axis.text.x = element_text(angle = 45,  hjust=1)
+  )
 
 # Display results of code below this codeblock
 
